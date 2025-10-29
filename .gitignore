@@ -1,0 +1,33 @@
+# Archivos de OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Archivos de IDE
+.idea/
+.vscode/
+*.iml
+
+# Java / Spring Boot
+/backend/target/
+/backend/build/
+/backend/.gradle/
+*.jar
+*.war
+
+# Node.js / React
+/frontend/node_modules/
+/frontend/build/
+.npm
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+
+# Archivos de Docker (a veces)
+docker-compose.override.yml
