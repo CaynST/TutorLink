@@ -1,0 +1,133 @@
+{
+  "info": {
+    "name": "TutorLink Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "token", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "auth", "register" ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"ana@uv.mx\",\n  \"contrasena\": \"MiClaveSegura1\",\n  \"nombre\": \"Ana\",\n  \"apellidos\": \"Pérez López\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "auth", "login" ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"ana@uv.mx\",\n  \"contrasena\": \"MiClaveSegura1\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login devuelve token', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.token).to.be.a('string');",
+                  "  pm.collectionVariables.set('token', json.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "auth", "me" ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Preguntas",
+      "item": [
+        {
+          "name": "Crear Pregunta",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/preguntas",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "preguntas" ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Duda sobre herencia en Java\",\n  \"texto\": \"¿Cómo funciona super en constructores?\",\n  \"scope_tipo\": \"FACULTAD\",\n  \"id_facultad_scope\": 1\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Preguntas (paginado + filtros)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/preguntas?estado=PENDIENTE&scope_tipo=FACULTAD&id_facultad_scope=1&page=0&size=10",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "preguntas" ],
+              "query": [
+                { "key": "estado", "value": "PENDIENTE" },
+                { "key": "scope_tipo", "value": "FACULTAD" },
+                { "key": "id_facultad_scope", "value": "1" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
