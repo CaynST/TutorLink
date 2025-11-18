@@ -17,12 +17,95 @@ Proyecto para la materia de POO. Plataforma de tutorías con IA generativa.
 * **Despliegue:** AWS EC2 con Nginx y Let's Encrypt
 
 ## Instrucciones de Despliegue (Local)
+> Nota: El proyecto ahora soporta perfiles Spring (`dev`, `prod`). Para desarrollo se usa H2 en memoria y puerto 8081; para producción PostgreSQL y puerto 8080.
 
-1.  Asegurarse de tener Docker y Docker Compose instalados.
-2.  Clonar este repositorio.
-3.  (Solo la primera vez) Crear los `Dockerfile` dentro de `/backend` y `/frontend`.
-4.  Ejecutar `docker compose up -d --build` desde la raíz del proyecto.
-5.  El sitio estará disponible en `localhost:3000`.
+### Backend (Spring Boot)
+
+Perfiles disponibles:
+- `dev`: Base H2 en memoria, consola H2, logs SQL verbosos, puerto 8081.
+- `prod`: PostgreSQL, logs moderados, puerto 8080.
+
+Archivos de configuración:
+- `backend/tutorlink-backend/src/main/resources/application.properties` (común)
+- `backend/tutorlink-backend/src/main/resources/application-dev.properties` (perfil dev)
+- `backend/tutorlink-backend/src/main/resources/application-prod.properties` (perfil prod)
+
+#### Ejecutar en desarrollo (fish shell)
+```fish
+cd "backend/tutorlink-backend"
+mvn spring-boot:run -DskipTests -Dspring-boot.run.profiles=dev
+```
+Acceso:
+- API: http://localhost:8081/
+- Consola H2: http://localhost:8081/h2 (JDBC URL = `jdbc:h2:mem:tutorlink`)
+
+#### Ejecutar en producción local (simulación)
+Exporta variables de entorno antes (ajusta credenciales):
+```fish
+set -x JDBC_URL "jdbc:postgresql://localhost:5432/tutorlink"
+set -x JDBC_DRIVER "org.postgresql.Driver"
+set -x JDBC_USER "postgres"
+set -x JDBC_PASSWORD "secret"
+set -x JPA_DDL_AUTO "update"  # o validate en despliegue real
+cd "backend/tutorlink-backend"
+mvn spring-boot:run -DskipTests -Dspring-boot.run.profiles=prod
+```
+API: http://localhost:8080/
+
+#### Variables de entorno relevantes (backend)
+| Variable | Perfil | Descripción |
+|----------|--------|-------------|
+| JDBC_URL | prod | URL JDBC PostgreSQL |
+| JDBC_USER | prod | Usuario base de datos |
+| JDBC_PASSWORD | prod | Password BD |
+| JPA_DDL_AUTO | prod | Estrategia DDL (validate/update) |
+| MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_FROM | ambos | Configuración SMTP |
+| TUTORLINK_OLLAMA_BASE_URL | ambos | URL base de Ollama |
+| TUTORLINK_OLLAMA_MODEL | ambos | Nombre del modelo (ej: llama3.1) |
+| TUTORLINK_OLLAMA_TIMEOUT | ambos | Timeout ms para llamadas a LLM |
+
+#### Cambio rápido de puerto en dev
+Edita `application-dev.properties` (`server.port=8081`).
+
+### Frontend (React + Vite)
+```fish
+cd "frontend"
+npm install
+npm run dev
+```
+Acceso: http://localhost:3000/
+
+### Despliegue con Docker (opcional futurible)
+Si se desea contenerizar más adelante:
+1. Crear `Dockerfile` en `backend/` y `frontend/`.
+2. Definir un `docker-compose.yml` con servicios `backend`, `frontend` y `nginx` (reverse proxy + certificados).
+3. Variable de entorno `SPRING_PROFILES_ACTIVE=prod` para backend.
+
+### Despliegue en AWS EC2 (resumen)
+1. Instalar JDK 21 y PostgreSQL (o usar RDS).
+2. Exportar variables de entorno (ver tabla arriba).
+3. Construir jar: `mvn -q -DskipTests package`.
+4. Ejecutar: `java -jar tutorlink-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod`.
+5. Configurar Nginx como reverse proxy (80/443) -> 8080.
+6. Certificados con Let's Encrypt (certbot) y renovación automática.
+
+### Errores comunes / troubleshooting
+| Error | Causa probable | Solución |
+|-------|----------------|----------|
+| `Not a managed type` | Clase sin `@Entity` usada en un repositorio | Agregar `@Entity`, PK con `@Id` |
+| `Address already in use` | Puerto ocupado | Cambiar `server.port` o cerrar proceso previo |
+| `Cannot load driver class: org.h2.Driver` | Dependencia H2 sólo en scope test | Mover H2 a runtime (ya aplicado) |
+| `validate` falla en prod | Esquema no creado | Usar `update` temporalmente o migraciones |
+
+---
+## Instrucciones de Despliegue (Local con Docker legacy)
+Las antiguas instrucciones (Docker) se han movido aquí como referencia histórica:
+
+1. Asegurarse de tener Docker y Docker Compose instalados.
+2. Clonar este repositorio.
+3. Crear los `Dockerfile` dentro de `/backend` y `/frontend`.
+4. Ejecutar `docker compose up -d --build` desde la raíz del proyecto.
+5. El sitio estará disponible en `localhost:3000`.
 
 
 ## API Backend (Resumen rápido)
