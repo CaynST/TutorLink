@@ -33,11 +33,11 @@
         <!-- <hibernate.version>6.6.0.Final</hibernate.version> -->
     </properties>
     <dependencies>
-        <!-- Base de datos embebida para pruebas de integración -->
+        <!-- H2 para desarrollo e integración (disponible en runtime) -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
