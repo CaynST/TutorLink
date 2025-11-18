@@ -23,8 +23,8 @@ com/tutorlink/model/Region.class
 com/tutorlink/model/dto/LoginRequest.class
 com/tutorlink/model/Usuario.class
 com/tutorlink/service/OllamaService$GenerateRequest.class
-com/tutorlink/TutorlinkApplication.class
 com/tutorlink/exception/UnauthorizedException.class
+com/tutorlink/TutorlinkApplication.class
 com/tutorlink/business/AnswerBusiness.class
 com/tutorlink/service/NotificationService.class
 com/tutorlink/repository/RolRepository.class
@@ -63,8 +63,8 @@ com/tutorlink/repository/PlanEducativoRepository.class
 com/tutorlink/model/dto/UserDTO.class
 com/tutorlink/service/AnswerService.class
 com/tutorlink/repository/ProgramaEducativoRepository.class
-com/tutorlink/model/PlanEducativo.class
 com/tutorlink/model/dto/CreateQuestionRequest.class
+com/tutorlink/model/PlanEducativo.class
 com/tutorlink/model/Estudiante.class
 com/tutorlink/repository/DetalleAdminRepository.class
 com/tutorlink/business/interfaces/QuestionBusinessInterface.class
