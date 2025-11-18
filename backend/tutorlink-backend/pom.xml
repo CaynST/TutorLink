@@ -33,6 +33,12 @@
         <!-- <hibernate.version>6.6.0.Final</hibernate.version> -->
     </properties>
     <dependencies>
+        <!-- Base de datos embebida para pruebas de integración -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
