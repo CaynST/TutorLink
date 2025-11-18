@@ -1,5 +1,3 @@
 package com.tutorlink.repository;
 
-public interface EstudianteRepository {
-    // repository placeholder
-}
+// Archivo obsoleto: la interfaz correcta es DetalleEstudianteRepository en el archivo homónimo.

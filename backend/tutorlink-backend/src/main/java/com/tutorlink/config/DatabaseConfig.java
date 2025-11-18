@@ -1,5 +1,8 @@
 package com.tutorlink.config;
 
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
 public class DatabaseConfig {
-    // TODO: configuración de la base de datos y JPA
+    // Configuración específica puede ir en application.properties y perfiles.
 }

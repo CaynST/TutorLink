@@ -1,5 +1,10 @@
 package com.tutorlink.repository;
 
-public interface AreaAcademicaRepository {
-    // repository placeholder
+import com.tutorlink.model.AreaAcademica;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface AreaAcademicaRepository extends JpaRepository<AreaAcademica, Long> {
+    // Métodos personalizados si se necesitan
 }

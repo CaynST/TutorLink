@@ -1,5 +1,9 @@
 package com.tutorlink.service.interfaces;
 
+import com.tutorlink.model.Respuesta;
+
 public interface AnswerServiceInterface {
-    // definir métodos de respuesta
+    Respuesta generarRespuestaConOllama(Long idPregunta, Long idUsuarioLLM);
+    Respuesta aprobarRespuesta(Long idRespuesta, Long idTutorAprobador);
+    Respuesta rechazarYRegenerarRespuesta(Long idRespuesta, Long idTutorRevisor);
 }
