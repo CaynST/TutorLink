@@ -17,6 +17,7 @@
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/controller/QuestionController.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/controller/UserController.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/exception/GlobalExceptionHandler.java
+/home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/exception/OllamaCommunicationException.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/exception/ResourceNotFoundException.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/exception/UnauthorizedException.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/exception/ValidationException.java
@@ -68,6 +69,7 @@
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/service/AnswerService.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/service/AuthService.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/service/JwtService.java
+/home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/service/OllamaService.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/service/QuestionService.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/service/UserService.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/service/interfaces/AdminServiceInterface.java

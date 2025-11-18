@@ -10,6 +10,7 @@ import com.tutorlink.repository.DetalleEstudianteRepository;
 import com.tutorlink.repository.PreguntaRepository;
 import com.tutorlink.repository.RespuestaRepository;
 import com.tutorlink.repository.UsuarioRepository;
+import com.tutorlink.service.OllamaService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,15 +21,18 @@ public class AnswerBusiness implements AnswerBusinessInterface {
     private final PreguntaRepository preguntaRepository;
     private final UsuarioRepository usuarioRepository;
     private final DetalleEstudianteRepository detalleEstudianteRepository;
+    private final OllamaService ollamaService;
 
     public AnswerBusiness(RespuestaRepository respuestaRepository,
                           PreguntaRepository preguntaRepository,
                           UsuarioRepository usuarioRepository,
-                          DetalleEstudianteRepository detalleEstudianteRepository) {
+                          DetalleEstudianteRepository detalleEstudianteRepository,
+                          OllamaService ollamaService) {
         this.respuestaRepository = respuestaRepository;
         this.preguntaRepository = preguntaRepository;
         this.usuarioRepository = usuarioRepository;
         this.detalleEstudianteRepository = detalleEstudianteRepository;
+        this.ollamaService = ollamaService;
     }
 
     @Override
@@ -42,7 +46,7 @@ public class AnswerBusiness implements AnswerBusinessInterface {
         // 1) Preparar prompt según alcance y contexto
         String prompt = prepararPromptParaOllama(pregunta);
         // 2) Invocar Ollama y obtener el contenido (stub)
-        String contenidoGenerado = invocarOllama(prompt);
+    String contenidoGenerado = ollamaService.generarRespuesta(prompt, null);
         // 3) Guardar respuesta como PENDIENTE_REVISION
         Respuesta r = new Respuesta(pregunta, llm, contenidoGenerado);
         r.setEstadoRespuesta("PENDIENTE_REVISION");
@@ -98,7 +102,7 @@ public class AnswerBusiness implements AnswerBusinessInterface {
         // Generar una nueva versión de respuesta
         Pregunta p = respuesta.getPregunta();
         String prompt = prepararPromptParaOllama(p) + "\nObservación del tutor: por favor, mejora la respuesta.";
-        String contenidoGenerado = invocarOllama(prompt);
+    String contenidoGenerado = ollamaService.generarRespuesta(prompt, null);
 
         Respuesta nueva = new Respuesta();
         nueva.setPregunta(p);
@@ -132,13 +136,7 @@ public class AnswerBusiness implements AnswerBusinessInterface {
         return sb.toString();
     }
 
-    /**
-     * Aquí iría la integración real con Ollama (HTTP client). Se deja como stub.
-     */
-    private String invocarOllama(String prompt) {
-        // TODO: Implementar llamada HTTP a Ollama (stream opcional) y parsear respuesta.
-        return "Respuesta generada por LLM (stub) para el prompt: \n" + prompt;
-    }
+    // Se delega la invocación real a OllamaService
 
     private void notificarTutorDeNuevaRespuesta(Pregunta p) {
         // TODO: Integrar notificaciones (email/websocket). RF-10

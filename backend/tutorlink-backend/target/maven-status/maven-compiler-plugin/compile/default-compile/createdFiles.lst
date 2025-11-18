@@ -14,12 +14,15 @@ com/tutorlink/repository/RespuestaRepository.class
 com/tutorlink/config/JwtAuthenticationFilter.class
 com/tutorlink/model/Sudo.class
 com/tutorlink/config/DatabaseConfig.class
+com/tutorlink/service/OllamaService.class
 com/tutorlink/repository/DetalleTutorRepository.class
+com/tutorlink/service/OllamaService$GenerateResponse.class
 com/tutorlink/business/AdminBusiness.class
 com/tutorlink/repository/AdminRepository.class
 com/tutorlink/model/Region.class
 com/tutorlink/model/dto/LoginRequest.class
 com/tutorlink/model/Usuario.class
+com/tutorlink/service/OllamaService$GenerateRequest.class
 com/tutorlink/exception/UnauthorizedException.class
 com/tutorlink/TutorlinkApplication.class
 com/tutorlink/business/AnswerBusiness.class
@@ -65,6 +68,7 @@ com/tutorlink/model/Estudiante.class
 com/tutorlink/repository/DetalleAdminRepository.class
 com/tutorlink/business/interfaces/QuestionBusinessInterface.class
 com/tutorlink/service/AdminService.class
+com/tutorlink/exception/OllamaCommunicationException.class
 com/tutorlink/repository/PreguntaRepository.class
 com/tutorlink/repository/RegionRepository.class
 com/tutorlink/model/AreaAcademica.class
