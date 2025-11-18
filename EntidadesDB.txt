@@ -1,0 +1,103 @@
+=====================================================
+  PLAN DE BASE DE DATOS: PROYECTO TUTORLINK (v2.0)
+=====================================================
+Este plan de 12 tablas está normalizado para eliminar redundancia
+y cumplir con los requisitos de negocio.
+
+--- Tablas de Roles y Sistema (2) ---
+
+Tabla: Rol
+(Define los tipos de usuarios en el sistema)
+- id_rol (SERIAL, PK)
+- nombre_rol (VARCHAR, UNIQUE, NOT NULL)
+  (Valores: "ESTUDIANTE", "TUTOR", "ADMIN", "SUDO", "LLM")
+
+Tabla: Usuario
+(Tabla centralizada. Almacena TODOS los usuarios, bots y admins)
+- id_usuario (SERIAL, PK)
+- id_rol (INT, FK -> Rol.id_rol, NOT NULL)
+- matricula (VARCHAR, UNIQUE)
+- correo (VARCHAR, UNIQUE, NOT NULL)
+- contrasena (VARCHAR, NOT NULL)  -- (Se guardará con HASH)
+- nombre (VARCHAR, NOT NULL)
+- apellidos (VARCHAR, NOT NULL)
+- telefono (VARCHAR)              -- (VARCHAR para +52, etc.)
+- correo_alternativo (VARCHAR)
+- ciudad (VARCHAR)
+- pais (VARCHAR)
+- foto_perfil_url (VARCHAR)       -- (Para RF-15)
+
+--- Tablas de Alcance / Normalización (5) ---
+
+Tabla: Region
+- id_region (SERIAL, PK)
+- nombre_region (VARCHAR, UNIQUE, NOT NULL)
+
+Tabla: Area_Academica
+- id_area (SERIAL, PK)
+- nombre_area (VARCHAR, UNIQUE, NOT NULL)
+
+Tabla: Facultad
+- id_facultad (SERIAL, PK)
+- id_region (INT, FK -> Region.id_region)
+- nombre_facultad (VARCHAR, UNIQUE, NOT NULL)
+
+Tabla: Programa_Educativo
+- id_programa (SERIAL, PK)
+- id_facultad (INT, FK -> Facultad.id_facultad)
+- id_area (INT, FK -> Area_Academica.id_area)
+- nombre_programa (VARCHAR, UNIQUE, NOT NULL)
+
+Tabla: Plan_Educativo
+- id_plan (SERIAL, PK)
+- id_programa (INT, FK -> Programa_Educativo.id_programa)
+- nombre_plan (VARCHAR, NOT NULL)
+- (PK Compuesta: id_programa, nombre_plan)
+
+--- Tablas de Detalles de Roles (3) ---
+
+Tabla: Detalle_Estudiante
+(Información específica de un Usuario con rol ESTUDIANTE)
+- id_usuario (INT, PK, FK -> Usuario.id_usuario)  -- (Relación 1 a 1)
+- id_plan_educativo (INT, FK -> Plan_Educativo.id_plan)
+- id_tutor_asignado (INT, FK -> Usuario.id_usuario, NOT NULL) -- (Regla: 1 solo tutor)
+- semestre (INT)
+- grado (VARCHAR)
+
+Tabla: Detalle_Tutor
+(Información específica de un Usuario con rol TUTOR)
+- id_usuario (INT, PK, FK -> Usuario.id_usuario)  -- (Relación 1 a 1)
+- id_programa_educativo (INT, FK -> Programa_Educativo.id_programa) -- (Programa que tutora)
+
+
+Tabla: Detalle_Admin
+(Información específica de un Usuario con rol ADMIN)
+- id_usuario (INT, PK, FK -> Usuario.id_usuario)  -- (Relación 1 a 1)
+- id_facultad (INT, FK -> Facultad.id_facultad)   -- (Facultad que administra)
+
+
+--- Tablas de Flujo Principal (2) ---
+
+Tabla: Pregunta
+(El hilo de la pregunta)
+- id_pregunta (SERIAL, PK)
+- id_autor (INT, FK -> Usuario.id_usuario, NOT NULL)      -- (Quien pregunta)
+- id_revisor (INT, FK -> Usuario.id_usuario, NULL)       -- (Tutor que aprueba/rechaza)
+- titulo (VARCHAR, NOT NULL)
+- texto (TEXT, NOT NULL)
+- estado (VARCHAR, NOT NULL) -- (Valores: "PENDIENTE", "PUBLICADA", "RECHAZADA")
+- fecha_creacion (TIMESTAMP)
+- scope_tipo (VARCHAR, NOT NULL) -- (Valores: "GENERAL", "FACULTAD", "PLAN")
+- id_facultad_scope (INT, FK -> Facultad.id_facultad, NULL)
+- id_plan_educativo_scope (INT, FK -> Plan_Educativo.id_plan, NULL)
+
+Tabla: Respuesta
+(Las respuestas a una pregunta)
+- id_respuesta (SERIAL, PK)
+- id_pregunta (INT, FK -> Pregunta.id_pregunta, NOT NULL)
+- id_autor (INT, FK -> Usuario.id_usuario, NOT NULL)  -- (Será el id_usuario del 'LLM')
+- id_aprobador (INT, FK -> Usuario.id_usuario, NULL)  -- (Tutor que la valida/rechaza)
+- contenido (TEXT, NOT NULL)
+- version_respuesta (INT, NOT NULL, DEFAULT 1)
+- estado_respuesta (VARCHAR, NOT NULL) -- (Valores: "PENDIENTE_REVISION", "PUBLICADA")
+- fecha_respuesta (TIMESTAMP)
