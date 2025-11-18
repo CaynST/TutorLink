@@ -26,6 +26,7 @@ com/tutorlink/service/OllamaService$GenerateRequest.class
 com/tutorlink/TutorlinkApplication.class
 com/tutorlink/exception/UnauthorizedException.class
 com/tutorlink/business/AnswerBusiness.class
+com/tutorlink/service/NotificationService.class
 com/tutorlink/repository/RolRepository.class
 com/tutorlink/repository/UsuarioRepository.class
 com/tutorlink/exception/ValidationException.class

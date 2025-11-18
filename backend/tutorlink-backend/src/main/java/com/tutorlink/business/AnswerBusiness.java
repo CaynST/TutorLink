@@ -11,6 +11,7 @@ import com.tutorlink.repository.PreguntaRepository;
 import com.tutorlink.repository.RespuestaRepository;
 import com.tutorlink.repository.UsuarioRepository;
 import com.tutorlink.service.OllamaService;
+import com.tutorlink.service.NotificationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,17 +23,20 @@ public class AnswerBusiness implements AnswerBusinessInterface {
     private final UsuarioRepository usuarioRepository;
     private final DetalleEstudianteRepository detalleEstudianteRepository;
     private final OllamaService ollamaService;
+    private final NotificationService notificationService;
 
     public AnswerBusiness(RespuestaRepository respuestaRepository,
                           PreguntaRepository preguntaRepository,
                           UsuarioRepository usuarioRepository,
                           DetalleEstudianteRepository detalleEstudianteRepository,
-                          OllamaService ollamaService) {
+                          OllamaService ollamaService,
+                          NotificationService notificationService) {
         this.respuestaRepository = respuestaRepository;
         this.preguntaRepository = preguntaRepository;
         this.usuarioRepository = usuarioRepository;
         this.detalleEstudianteRepository = detalleEstudianteRepository;
         this.ollamaService = ollamaService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -53,8 +57,8 @@ public class AnswerBusiness implements AnswerBusinessInterface {
 
         Respuesta guardada = respuestaRepository.save(r);
 
-        // 4) Notificar al tutor (stub)
-        notificarTutorDeNuevaRespuesta(pregunta);
+    // 4) Notificar al tutor asignado que hay nueva respuesta pendiente (RF-10)
+    notificarTutorDeNuevaRespuesta(pregunta, guardada);
 
         return guardada;
     }
@@ -81,8 +85,8 @@ public class AnswerBusiness implements AnswerBusinessInterface {
         p.setEstado("PUBLICADA");
         preguntaRepository.save(p);
 
-        // Notificar al alumno
-        notificarAlumnoPreguntaContestada(p);
+    // Notificar al alumno (RF-09)
+    notificarAlumnoPreguntaContestada(p, respuesta);
 
         return respuesta;
     }
@@ -113,8 +117,8 @@ public class AnswerBusiness implements AnswerBusinessInterface {
 
         Respuesta guardada = respuestaRepository.save(nueva);
 
-        // Notificar al tutor que hay nueva versión pendiente
-        notificarTutorDeNuevaRespuesta(p);
+    // Notificar al tutor que hay nueva versión pendiente (RF-10)
+    notificarTutorDeNuevaRespuesta(p, guardada);
 
         return guardada;
     }
@@ -138,11 +142,26 @@ public class AnswerBusiness implements AnswerBusinessInterface {
 
     // Se delega la invocación real a OllamaService
 
-    private void notificarTutorDeNuevaRespuesta(Pregunta p) {
-        // TODO: Integrar notificaciones (email/websocket). RF-10
+    private void notificarTutorDeNuevaRespuesta(Pregunta p, Respuesta r) {
+        try {
+            if (p == null || p.getAutor() == null) return;
+            var detalle = detalleEstudianteRepository.findByIdUsuario(p.getAutor().getIdUsuario());
+            if (detalle == null || detalle.getTutorAsignado() == null) return;
+            var tutor = detalle.getTutorAsignado();
+            var alumno = p.getAutor();
+            notificationService.enviarNotificacionNuevaRespuestaParaTutor(tutor, alumno, p, r);
+        } catch (Exception ex) {
+            // No interrumpir el flujo de negocio por fallas en notificaciones
+        }
     }
 
-    private void notificarAlumnoPreguntaContestada(Pregunta p) {
-        // TODO: Integrar notificaciones al alumno. RF-09
+    private void notificarAlumnoPreguntaContestada(Pregunta p, Respuesta r) {
+        try {
+            if (p == null || p.getAutor() == null) return;
+            var alumno = p.getAutor();
+            notificationService.enviarNotificacionRespuestaAprobada(alumno, p, r);
+        } catch (Exception ex) {
+            // No interrumpir el flujo de negocio por fallas en notificaciones
+        }
     }
 }
