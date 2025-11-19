@@ -8,6 +8,7 @@ import com.tutorlink.model.DetalleEstudiante;
 import com.tutorlink.model.Rol;
 import com.tutorlink.model.Usuario;
 import com.tutorlink.repository.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,17 +27,20 @@ public class UserBusiness implements UserBusinessInterface {
     private final DetalleEstudianteRepository detalleEstudianteRepository;
     private final PlanEducativoRepository planEducativoRepository;
     private final ProgramaEducativoRepository programaEducativoRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserBusiness(UsuarioRepository usuarioRepository,
                         RolRepository rolRepository,
                         DetalleEstudianteRepository detalleEstudianteRepository,
                         PlanEducativoRepository planEducativoRepository,
-                        ProgramaEducativoRepository programaEducativoRepository) {
+                        ProgramaEducativoRepository programaEducativoRepository,
+                        PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.rolRepository = rolRepository;
         this.detalleEstudianteRepository = detalleEstudianteRepository;
         this.planEducativoRepository = planEducativoRepository;
         this.programaEducativoRepository = programaEducativoRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // Valida si el correo es único
@@ -68,9 +72,12 @@ public class UserBusiness implements UserBusinessInterface {
         usuario.setMatricula(matricula);
 
         var plan = planEducativoRepository.findById(idPlanEducativo)
-                .orElseThrow(() -> new ResourceNotFoundException("Plan educativo no encontrado"));
-        var tutor = usuarioRepository.findById(idTutorAsignado)
+            .orElseThrow(() -> new ResourceNotFoundException("Plan educativo no encontrado"));
+        Usuario tutor = null;
+        if (idTutorAsignado != null) {
+            tutor = usuarioRepository.findById(idTutorAsignado)
                 .orElseThrow(() -> new ResourceNotFoundException("Tutor asignado no encontrado"));
+        }
 
         usuario = usuarioRepository.save(usuario);
 
@@ -101,12 +108,20 @@ public class UserBusiness implements UserBusinessInterface {
 
     @Override
     public Usuario login(String correo, String contrasenaRaw) {
-        // Nota: Aquí debería validarse el hash de la contraseña con un encoder (BCrypt).
         Usuario usuario = usuarioRepository.findByCorreo(correo)
                 .orElseThrow(() -> new UnauthorizedException("Credenciales inválidas"));
 
-        if (!Objects.equals(usuario.getContrasena(), contrasenaRaw)) {
-            throw new UnauthorizedException("Credenciales inválidas");
+        String stored = usuario.getContrasena();
+        // Si stored parece ser un hash (comienza por $2a$ o $2b$), usar encoder.matches
+        if (stored != null && (stored.startsWith("$2a$") || stored.startsWith("$2b$") || stored.startsWith("$2y$"))) {
+            if (!passwordEncoder.matches(contrasenaRaw, stored)) {
+                throw new UnauthorizedException("Credenciales inválidas");
+            }
+        } else {
+            // Fallback para cuentas antiguas (sin hash)
+            if (!Objects.equals(stored, contrasenaRaw)) {
+                throw new UnauthorizedException("Credenciales inválidas");
+            }
         }
         return usuario;
     }

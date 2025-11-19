@@ -27,7 +27,9 @@ Proyecto para la materia de POO. Plataforma de tutorías con IA generativa.
 
 ## API Backend (Resumen rápido)
 
-Base URL por defecto: `http://localhost:8080`
+Base URL por defecto (producción): `http://localhost:8080`
+
+Nota de desarrollo: al usar el perfil `dev` el backend arranca en el puerto `8081` (H2 en memoria). URL dev: `http://localhost:8081`
 
 Autenticación: Bearer JWT en el header `Authorization: Bearer <token>` para rutas protegidas (`/api/**`), excepto `/api/auth/register` y `/api/auth/login`.
 
