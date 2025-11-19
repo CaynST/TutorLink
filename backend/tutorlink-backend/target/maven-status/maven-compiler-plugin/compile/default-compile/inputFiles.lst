@@ -10,6 +10,7 @@
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/config/CorsConfig.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/config/DataInitializer.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/config/DatabaseConfig.java
+/home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/config/DevDataInitializer.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/config/JwtAuthenticationFilter.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/config/SecurityConfig.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/controller/AdminController.java
