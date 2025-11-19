@@ -102,10 +102,7 @@ La estructura de la base de datos está definida en `EntidadesDB.txt`. Incluye t
 - **POST `/api/auth/login`** (público)
     - Body (JSON):
         ```json
-        {
-            "correo": "string",
-            "contrasena": "string"
-        }
+        {"correo":"tutor2@example.com","contrasena":"Pass1234!","rol":"TUTOR","nombre":"Tutor","apellidos":"Dos","telefono":"555-5678"}
         ```
     - Respuesta 200 OK: `{ "token": "<JWT>" }`
 
