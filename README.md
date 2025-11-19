@@ -90,11 +90,12 @@ La estructura de la base de datos está definida en `EntidadesDB.txt`. Incluye t
     - Body (JSON):
         ```json
         {
-            "correo": "string",
-            "contrasena": "string",
-            "nombre": "string",
-            "apellidos": "string"
-            // Campos opcionales: matricula, telefono, etc.
+            "correo":"tutor2@example.com",
+            "contrasena":"Pass1234!",
+            "rol":"TUTOR",
+            "nombre":"Tutor",
+            "apellidos":"Dos",
+            "telefono":"555-5678"
         }
         ```
     - Respuesta 201 Created: Usuario (sin contraseña)
@@ -102,8 +103,11 @@ La estructura de la base de datos está definida en `EntidadesDB.txt`. Incluye t
 - **POST `/api/auth/login`** (público)
     - Body (JSON):
         ```json
-        {"correo":"tutor2@example.com","contrasena":"Pass1234!","rol":"TUTOR","nombre":"Tutor","apellidos":"Dos","telefono":"555-5678"}
-        ```
+        {
+            "correo": "string",
+            "contrasena": "string"
+        }
+       ```
     - Respuesta 200 OK: `{ "token": "<JWT>" }`
 
 - **GET `/api/auth/me`** (protegido)
