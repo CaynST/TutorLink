@@ -21,7 +21,7 @@ public class DetalleEstudiante {
     private PlanEducativo planEducativo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_tutor_asignado", nullable = false)
+    @JoinColumn(name = "id_tutor_asignado", nullable = true)
     private Usuario tutorAsignado; // Referencia al tutor (usuario con rol TUTOR)
 
     @Column(name = "semestre", nullable = true)
@@ -35,7 +35,7 @@ public class DetalleEstudiante {
 
     public DetalleEstudiante(Usuario usuario, Usuario tutorAsignado) {
         this.usuario = usuario;
-        this.idUsuario = usuario.getIdUsuario(); // Inicializa la PK
+        // do NOT set idUsuario here; @MapsId will copy the generated id from `usuario`
         this.tutorAsignado = tutorAsignado;
     }
 

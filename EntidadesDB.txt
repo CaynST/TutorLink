@@ -24,7 +24,6 @@ Tabla: Usuario
 - telefono (VARCHAR)              -- (VARCHAR para +52, etc.)
 - correo_alternativo (VARCHAR)
 - ciudad (VARCHAR)
-- pais (VARCHAR)
 - foto_perfil_url (VARCHAR)       -- (Para RF-15)
 
 --- Tablas de Alcance / Normalización (5) ---
