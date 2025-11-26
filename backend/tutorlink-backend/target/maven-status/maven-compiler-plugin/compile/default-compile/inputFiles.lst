@@ -7,6 +7,7 @@
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/business/interfaces/AnswerBusinessInterface.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/business/interfaces/QuestionBusinessInterface.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/business/interfaces/UserBusinessInterface.java
+/home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/config/ApiConfig.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/config/CorsConfig.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/config/DataInitializer.java
 /home/cayn/Documentos/Documentación Proyecto POO/TutorLink/backend/tutorlink-backend/src/main/java/com/tutorlink/config/DatabaseConfig.java

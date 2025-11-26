@@ -28,6 +28,9 @@ public class AnswerController {
         this.jwtService = jwtService;
     }
 
+    @org.springframework.beans.factory.annotation.Value("${tutorlink.ollama.llm-user-id:1}")
+    private Long defaultLlmUserId;
+
     private Long extraerUid(HttpServletRequest request) {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (header == null || !header.startsWith("Bearer ")) return null;
@@ -55,6 +58,23 @@ public class AnswerController {
         Long uid = extraerUid(request);
         if (uid == null) throw new UnauthorizedException("Token inválido");
         Respuesta r = answerService.rechazarYRegenerarRespuesta(idRespuesta, uid);
+        return ResponseEntity.ok(AnswerDTO.fromEntity(r));
+    }
+
+    /**
+     * Endpoint para que el frontend solicite la generación de respuesta LLM para una pregunta.
+     * - `idUsuarioLLM` puede pasarse como query param; si no se pasa se usa la propiedad
+     *   `tutorlink.ollama.llm-user-id` (por defecto 1).
+     */
+    @PostMapping("/preguntas/{id}/generar")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<AnswerDTO> generarRespuestaLLM(@PathVariable("id") Long idPregunta,
+                                                         @RequestParam(value = "idUsuarioLLM", required = false) Long idUsuarioLLM,
+                                                         HttpServletRequest request) {
+        Long uid = extraerUid(request);
+        if (uid == null) throw new UnauthorizedException("Token inválido");
+        Long llmIdToUse = idUsuarioLLM != null ? idUsuarioLLM : defaultLlmUserId;
+        Respuesta r = answerService.generarRespuestaConOllama(idPregunta, llmIdToUse);
         return ResponseEntity.ok(AnswerDTO.fromEntity(r));
     }
 }

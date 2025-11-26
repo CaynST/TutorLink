@@ -1,191 +1,118 @@
-# Proyecto TutorLink UV
-
 Proyecto para la materia de POO. Plataforma de tutorías con IA generativa.
+Backend: Saúl Angulo Triana (Cayn)
+Frontend: Quetzali Yatana Roa Moreno
+Database: Marco Antonio Solís
+Tecnologías
+Backend: Java Spring Boot
+Frontend: React con Vite
+Base de Datos: PostgreSQL
+Modelo de IA: Ollama
+Despliegue: AWS EC2
+Descripción del Sistema
+Tutorlink es una plataforma de tutorías académicas que utiliza inteligencia artificial generativa (Ollama) para mejorar el aprendizaje. Los estudiantes pueden realizar preguntas sobre temas específicos, las cuales son respondidas por un modelo de lenguaje (LLM). Las respuestas generadas pasan por un proceso de revisión realizado por tutores asignados antes de ser publicadas. Los administradores tienen herramientas para gestionar usuarios, preguntas y el flujo de registro.
 
-## Miembros del Equipo
+Flujo Principal:
 
-* **Backend:** [Tu Nombre]
-* **Frontend:** [Nombre de tu compañero]
-* **Database:** [Nombre de tu compañero]
+Un estudiante se loguea.
+Realiza una pregunta.
+El sistema genera una respuesta con Ollama.
+La respuesta entra en revisión.
+Un tutor aprueba o rechaza la respuesta.
+Si se aprueba, la respuesta se vuelve visible para el estudiante.
+Actores: Alumnos, Tutores, Administradores, Súper Usuarios.
 
-## Stack Tecnológico
+Requisitos Funcionales (RFs)
+Código	Requisito	Descripción
+RF-01	Panel de registro	Permitir a alumnos y tutores registrarse.
+RF-02	Panel de login	Permitir a los usuarios iniciar sesión.
+RF-03	Panel de control	Panel de gestión para admins y súper usuarios.
+RF-04	Realizar pregunta	Permitir a los alumnos hacer preguntas.
+RF-05	Escoger alcance de pregunta	Permitir escoger el alcance (general, carrera, facultad, semestre).
+RF-06	Sugerir pregunta	Detectar preguntas similares ya realizadas.
+RF-07	Buscar preguntas	Contar con un buscador de preguntas.
+RF-08	Filtrar búsqueda de preguntas	Permitir filtrar la búsqueda por alcance.
+RF-09	Notificar pregunta contestada	Notificar al alumno cuando su duda sea respondida.
+RF-10	Notificar respuesta del LLM	Notificar a los tutores cuando haya una nueva respuesta del LLM.
+RF-11	Visualizar preguntas en revisión	Permitir a los tutores ver preguntas pendientes.
+RF-12	Validar respuesta	Permitir a los tutores marcar una respuesta como válida.
+RF-13	Rechazar respuesta	Permitir a los tutores rechazar una respuesta.
+RF-14	Consultar perfil	Permitir a los usuarios ver su perfil.
+RF-15	Cambiar foto de perfil	Permitir cambiar la foto de perfil.
+RF-16	Consultar tutorados	Permitir a los tutores ver a sus tutorados.
+RF-17	Buscar tutorados	Contar con un buscador de tutorados.
+RF-18	Filtrar tutorados	Permitir filtrar tutorados por plan educativo o semestre.
+RF-19	Gestionar tutores	Permitir a los administradores gestionar tutores.
+RF-20	Gestionar tutorados	Permitir a los administradores gestionar tutorados.
+RF-21	Validar registro	Permitir a los administradores admitir registros.
+RF-22	Gestionar preguntas	Permitir a los administradores gestionar preguntas.
+RF-23	Control de súper usuario	Contar con un súper usuario con control total.
+Arquitectura Backend
+El backend sigue una arquitectura de 4 capas:
 
-* **Backend:** Java Spring Boot
-* **Frontend:** React con vite
-* **Base de Datos:** PostgreSQL
-* **Entorno:** Docker
-* **Despliegue:** AWS EC2 con Nginx y Let's Encrypt
+Controller: Recibe solicitudes HTTP.
+Service: Coordina operaciones.
+Business: Contiene la lógica de negocio.
+Data Access (Repository): Acceso a la base de datos.
+Base de Datos
+La estructura de la base de datos está definida en EntidadesDB.txt. Incluye tablas para roles, usuarios, detalles específicos por rol, jerarquía académica y el flujo principal de preguntas y respuestas.
 
-## Instrucciones de Despliegue (Local)
+API REST
+Base URL por defecto: http://localhost:8080
+Autenticación: Bearer JWT en el header Authorization: Bearer <token> para rutas protegidas (/api/**), excepto /api/auth/register y /api/auth/login.
 
-1.  Asegurarse de tener Docker y Docker Compose instalados.
-2.  Clonar este repositorio.
-3.  (Solo la primera vez) Crear los `Dockerfile` dentro de `/backend` y `/frontend`.
-4.  Ejecutar `docker compose up -d --build` desde la raíz del proyecto.
-5.  El sitio estará disponible en `localhost:3000`.
+Endpoints Principales
+POST /api/auth/register (público)
 
-
-## API Backend (Resumen rápido)
-
-Base URL por defecto (producción): `http://localhost:8080`
-
-Nota de desarrollo: al usar el perfil `dev` el backend arranca en el puerto `8081` (H2 en memoria). URL dev: `http://localhost:8081`
-
-Autenticación: Bearer JWT en el header `Authorization: Bearer <token>` para rutas protegidas (`/api/**`), excepto `/api/auth/register` y `/api/auth/login`.
-
-### Autenticación
-
-- POST `/api/auth/register` (público)
-	- Body (JSON):
-		- correo (string, email, requerido)
-		- contrasena (string, 8-30, requerido)
-		- nombre (string, requerido)
-		- apellidos (string, requerido)
-		- matricula, telefono, correoAlternativo, ciudad, pais, fotoPerfilUrl (opcionales)
-	- Respuesta 201 Created: Usuario (sin contraseña)
-
-- POST `/api/auth/login` (público)
-	- Body (JSON):
-		- correo (string, email, requerido)
-		- contrasena (string, requerido)
-	- Respuesta 200 OK: `{ "token": "<JWT>" }`
-
-- GET `/api/auth/me` (protegido)
-	- Header: `Authorization: Bearer <JWT>`
-	- Respuesta 200 OK: `{ username, authorities }`
-
-Notas:
-- El backend requiere que existan roles base (ESTUDIANTE, TUTOR, ADMIN, SUDO, LLM). Se crean automáticamente al arrancar.
-- Configurar `jwt.secret` (Base64, >= 256 bits) y credenciales de Postgres en `backend/src/main/resources/application.properties`.
-
-### Preguntas
-
-Entidad base según plan de datos. Respuestas usan DTOs para no exponer toda la entidad.
-
-- POST `/api/preguntas` (protegido)
-	- Body (JSON):
-		- titulo (string, requerido)
-		- texto (string, requerido)
-		- scope_tipo (string, requerido) — uno de: GENERAL | FACULTAD | PLAN
-		- estado (string, opcional; por defecto PENDIENTE) — uno de: PENDIENTE | PUBLICADA | RECHAZADA
-		- id_facultad_scope (long, opcional; requerido si `scope_tipo == FACULTAD`)
-		- id_plan_educativo_scope (long, opcional; requerido si `scope_tipo == PLAN`)
-	- Respuesta 201 Created: PreguntaResponseDto
-		- id_pregunta (long)
-		- titulo, texto, estado (string)
-		- fecha_creacion (ISO-8601)
-		- scope_tipo (string)
-		- autor { nombre, apellidos }
-
-- GET `/api/preguntas` (protegido, paginado)
-	- Query params opcionales (validados estrictamente):
-		- estado = PENDIENTE | PUBLICADA | RECHAZADA
-		- scope_tipo = GENERAL | FACULTAD | PLAN
-		- id_facultad_scope (long)
-		- id_plan_educativo_scope (long)
-	- Paginación y sort (Spring): `page`, `size`, `sort`.
-	- Orden por defecto: `fechaCreacion,desc`.
-	- Respuesta 200 OK: `Page<PreguntaSummaryDto>`
-		- content[]: { id_pregunta, titulo, estado, fecha_creacion, autor { nombre, apellidos } }
-		- page metadata: size, number, totalElements, totalPages, etc.
-
-### Ejemplos de solicitud (JSON)
-
-Registro (POST /api/auth/register):
-
-```
+Body (JSON):
 {
-	"correo": "ana@uv.mx",
-	"contrasena": "MiClaveSegura1",
-	"nombre": "Ana",
-	"apellidos": "Pérez López"
+    "correo":"tutor2@example.com",
+    "contrasena":"Pass1234!",
+    "rol":"TUTOR",
+    "nombre":"Tutor",
+    "apellidos":"Dos",
+    "telefono":"555-5678"
 }
-```
+Respuesta 201 Created: Usuario (sin contraseña)
+POST /api/auth/login (público)
 
-Login (POST /api/auth/login):
-
-```
+Body (JSON):
 {
-	"correo": "ana@uv.mx",
-	"contrasena": "MiClaveSegura1"
+    "correo": "string",
+    "contrasena": "string"
 }
-```
+Respuesta 200 OK: { "token": "<JWT>" }
+GET /api/auth/me (protegido)
 
-Crear pregunta (POST /api/preguntas):
+Header: Authorization: Bearer <JWT>
+Respuesta 200 OK: { username, authorities }
+POST /api/preguntas (protegido)
 
-```
+Body (JSON):
 {
-	"titulo": "Duda sobre herencia en Java",
-	"texto": "¿Cómo funciona super en constructores?",
-	"scope_tipo": "FACULTAD",
-	"id_facultad_scope": 1
+    "titulo": "string",
+    "texto": "string",
+    "scope_tipo": "GENERAL|FACULTAD|PLAN",
+    "id_facultad_scope": 1,
+    "id_plan_educativo_scope": 1
 }
-```
+Respuesta 201 Created: PreguntaResponseDto
+GET /api/preguntas (protegido, paginado)
 
-Listado paginado con filtros (GET /api/preguntas):
-
-```
-/api/preguntas?estado=PENDIENTE&scope_tipo=FACULTAD&id_facultad_scope=1&page=0&size=10
-```
-
-## Convenciones de pruebas
-
-1) Perfil de pruebas y base de datos
-
-- Usamos el perfil `test` con una base de datos H2 en memoria para las pruebas de integración.
-- La configuración vive en `backend/src/test/resources/application-test.properties` e inicia el esquema en memoria con `ddl-auto=create-drop` y compatibilidad PostgreSQL.
-
-2) Aislamiento entre pruebas con DirtiesContext
-
-- Todas las clases de pruebas de integración DEBEN llevar esta anotación a nivel de clase para reiniciar el contexto (y la base H2) tras cada método de prueba y evitar errores de Unique index violation:
-
-```java
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-class MiIntegrationTest { /* ... */ }
-```
-
-3) Ejecutar la suite de pruebas
-
-- Desde la carpeta `backend/`:
-
-```bash
-mvn test
-```
-
-- Alternativa desde la raíz del repositorio:
-
-```bash
-mvn -f backend/pom.xml test
-```
-
-## Buenas prácticas de pruebas
-
-1) Nomenclatura de clases de integración
-
-- Todas las pruebas de integración deben terminar en `...IntegrationTest.java`.
-- Ejemplos: `AuthIntegrationTest.java`, `PreguntaIntegrationTest.java`, `TutorIntegrationTest.java`.
-
-2) Estructura de carpetas
-
-- Los archivos de prueba viven en `backend/src/test/java/...` siguiendo el mismo package que el código fuente de `src/main/java`.
-- Archivos de configuración de pruebas (por ejemplo, `application-test.properties`) viven en `backend/src/test/resources`.
-
-3) Datos de prueba
-
-- Cada prueba debe crear sus propios datos y no depender de efectos de pruebas previas.
-- Usa `@BeforeEach` para preparar datos mínimos por prueba (usuarios de prueba, roles, etc.). Ejemplo:
-
-```java
-@BeforeEach
-void setup() {
-	// Crear/asegurar usuario de prueba
-	// Si existe por un run previo, no fallar: buscar y reutilizar o limpiar segun el caso
-}
-```
-
-- Con `@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)` el contexto (y H2) se reinician tras cada método, por lo que lo normal es crear todo lo necesario en el propio test o en `@BeforeEach`.
-- Evita asumir IDs fijos. Obtén los IDs desde las respuestas de la API o del repositorio tras guardar entidades.
-- Si hay mucha repetición para crear datos, considera helpers o factories de test (métodos privados reutilizables dentro de la clase o utilidades en el mismo módulo de test).
+Query params: estado, scope_tipo, id_facultad_scope, id_plan_educativo_scope, page, size, sort.
+Respuesta 200 OK: Page<PreguntaSummaryDto>
+Pruebas
+Usamos el perfil test con una base de datos H2 en memoria.
+Ejecutar pruebas: mvn test desde la carpeta backend/.
+Todas las clases de pruebas de integración deben llevar @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD).
+Estado del Proyecto
+✅ Backend: Completado. Todas las funcionalidades principales están implementadas y probadas.
+🟡 Frontend: En desarrollo.
+🔧 Despliegue: Preparado para despliegue directo en AWS EC2 (sin Docker).
+Cómo Ejecutar el Backend
+Clona este repositorio.
+Navega a la carpeta backend/tutorlink-backend.
+Ejecuta: mvn spring-boot:run
+El backend estará disponible en http://localhost:8080.
+Notas Importantes
+El backend crea automáticamente los roles base (ESTUDIANTE, TUTOR, ADMIN, SUDO, LLM) al iniciar.
+Configura jwt.secret (Base64, >= 256 bits) y las credenciales de PostgreSQL en backend/src/main/resources/application.properties.
