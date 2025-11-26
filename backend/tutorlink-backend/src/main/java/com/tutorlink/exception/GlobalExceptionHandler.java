@@ -60,4 +60,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
+    @ExceptionHandler(OllamaCommunicationException.class)
+    protected ResponseEntity<ApiResponse> handleOllamaCommunication(OllamaCommunicationException ex) {
+        ApiResponse body = new ApiResponse(false, ex.getMessage() == null || ex.getMessage().isBlank()
+                ? "Servicio de LLM no disponible" : ex.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
+    }
+
 }

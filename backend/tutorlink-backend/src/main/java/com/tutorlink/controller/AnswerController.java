@@ -31,6 +31,9 @@ public class AnswerController {
     @org.springframework.beans.factory.annotation.Value("${tutorlink.ollama.llm-user-id:1}")
     private Long defaultLlmUserId;
 
+    @org.springframework.beans.factory.annotation.Value("${tutorlink.ollama.enabled:true}")
+    private boolean ollamaEnabled;
+
     private Long extraerUid(HttpServletRequest request) {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (header == null || !header.startsWith("Bearer ")) return null;
@@ -39,9 +42,9 @@ public class AnswerController {
         return uid != null ? uid.longValue() : null;
     }
 
-    /** Aprueba una respuesta (sólo tutor). */
+    /** Aprueba una respuesta (sólo tutor o SUDO). */
     @PostMapping("/respuestas/{id}/aprobar")
-    @PreAuthorize("hasRole('TUTOR')")
+    @PreAuthorize("hasAnyRole('TUTOR','SUDO')")
     public ResponseEntity<AnswerDTO> aprobar(@PathVariable("id") Long idRespuesta,
                                              HttpServletRequest request) {
         Long uid = extraerUid(request);
@@ -50,9 +53,9 @@ public class AnswerController {
         return ResponseEntity.ok(AnswerDTO.fromEntity(r));
     }
 
-    /** Rechaza y regenera una respuesta (sólo tutor). */
+    /** Rechaza y regenera una respuesta (sólo tutor o SUDO). */
     @PostMapping("/respuestas/{id}/rechazar")
-    @PreAuthorize("hasRole('TUTOR')")
+    @PreAuthorize("hasAnyRole('TUTOR','SUDO')")
     public ResponseEntity<AnswerDTO> rechazarYRegenerar(@PathVariable("id") Long idRespuesta,
                                                         HttpServletRequest request) {
         Long uid = extraerUid(request);
@@ -67,12 +70,15 @@ public class AnswerController {
      *   `tutorlink.ollama.llm-user-id` (por defecto 1).
      */
     @PostMapping("/preguntas/{id}/generar")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ESTUDIANTE','TUTOR','SUDO')")
     public ResponseEntity<AnswerDTO> generarRespuestaLLM(@PathVariable("id") Long idPregunta,
                                                          @RequestParam(value = "idUsuarioLLM", required = false) Long idUsuarioLLM,
                                                          HttpServletRequest request) {
         Long uid = extraerUid(request);
         if (uid == null) throw new UnauthorizedException("Token inválido");
+        if (!ollamaEnabled) {
+            throw new com.tutorlink.exception.OllamaCommunicationException("Servicio de LLM deshabilitado en configuración. Use el mock para pruebas locales.");
+        }
         Long llmIdToUse = idUsuarioLLM != null ? idUsuarioLLM : defaultLlmUserId;
         Respuesta r = answerService.generarRespuestaConOllama(idPregunta, llmIdToUse);
         return ResponseEntity.ok(AnswerDTO.fromEntity(r));

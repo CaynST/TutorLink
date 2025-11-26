@@ -72,7 +72,13 @@ public class AnswerBusiness implements AnswerBusinessInterface {
 
         // Validar que el tutor sea el asignado al estudiante autor de la pregunta
         var detalle = detalleEstudianteRepository.findByIdUsuario(respuesta.getPregunta().getAutor().getIdUsuario());
-        if (detalle == null || !detalle.getTutorAsignado().getIdUsuario().equals(tutor.getIdUsuario())) {
+        if (detalle == null) {
+            throw new UnauthorizedException("El tutor no puede aprobar esta respuesta");
+        }
+        // Permitir aprobación si es el tutor asignado o si el usuario es SUDO
+        boolean isTutorAsignado = detalle.getTutorAsignado() != null && detalle.getTutorAsignado().getIdUsuario().equals(tutor.getIdUsuario());
+        boolean isSudo = tutor.getRol() != null && "SUDO".equalsIgnoreCase(tutor.getRol().getNombreRol());
+        if (!isTutorAsignado && !isSudo) {
             throw new UnauthorizedException("El tutor no puede aprobar esta respuesta");
         }
 
@@ -99,7 +105,12 @@ public class AnswerBusiness implements AnswerBusinessInterface {
                 .orElseThrow(() -> new ResourceNotFoundException("Tutor no encontrado"));
 
         var detalle = detalleEstudianteRepository.findByIdUsuario(respuesta.getPregunta().getAutor().getIdUsuario());
-        if (detalle == null || !detalle.getTutorAsignado().getIdUsuario().equals(tutor.getIdUsuario())) {
+        if (detalle == null) {
+            throw new UnauthorizedException("El tutor no puede rechazar esta respuesta");
+        }
+        boolean isTutorAsignado2 = detalle.getTutorAsignado() != null && detalle.getTutorAsignado().getIdUsuario().equals(tutor.getIdUsuario());
+        boolean isSudo2 = tutor.getRol() != null && "SUDO".equalsIgnoreCase(tutor.getRol().getNombreRol());
+        if (!isTutorAsignado2 && !isSudo2) {
             throw new UnauthorizedException("El tutor no puede rechazar esta respuesta");
         }
 

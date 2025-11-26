@@ -42,7 +42,7 @@ public class QuestionController {
 
     /** Crea una nueva pregunta. */
     @PostMapping("/preguntas")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ESTUDIANTE','TUTOR','SUDO')")
     public ResponseEntity<QuestionDTO> crearPregunta(@Valid @RequestBody CreateQuestionRequest body,
                                                      HttpServletRequest request) {
         Long uid = extraerUid(request);
@@ -76,15 +76,25 @@ public class QuestionController {
         return ResponseEntity.ok(lista.stream().map(QuestionDTO::fromEntity).collect(Collectors.toList()));
     }
 
-    /** Listado de pendientes para un tutor (sólo el propio tutor). */
+    /** Listado de pendientes para un tutor (sólo el propio tutor o SUDO). */
     @GetMapping("/tutores/{idTutor}/pendientes")
-    @PreAuthorize("hasRole('TUTOR')")
+    @PreAuthorize("hasAnyRole('TUTOR','SUDO')")
     public ResponseEntity<List<QuestionDTO>> pendientesTutor(@PathVariable Long idTutor,
                                                              HttpServletRequest request) {
         Long uid = extraerUid(request);
-        if (uid == null || !uid.equals(idTutor)) {
-            // Dejar que el manejador global transforme a 401/403 según corresponda
-            throw new com.tutorlink.exception.UnauthorizedException("No puede ver pendientes de otro tutor");
+        if (uid == null) {
+            throw new com.tutorlink.exception.UnauthorizedException("Token inválido");
+        }
+        if (!uid.equals(idTutor)) {
+            String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+            if (header == null || !header.startsWith("Bearer ")) {
+                throw new com.tutorlink.exception.UnauthorizedException("Token inválido");
+            }
+            io.jsonwebtoken.Claims c = jwtService.extraerClaims(header.substring(7));
+            String rol = c.get("rol", String.class);
+            if (rol == null || !rol.equalsIgnoreCase("SUDO")) {
+                throw new com.tutorlink.exception.UnauthorizedException("No puede ver pendientes de otro tutor");
+            }
         }
         List<Pregunta> lista = questionService.listarPendientesParaTutor(idTutor);
         return ResponseEntity.ok(lista.stream().map(QuestionDTO::fromEntity).collect(Collectors.toList()));

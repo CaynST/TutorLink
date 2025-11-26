@@ -66,8 +66,30 @@ Response: 200 OK
   "texto": "...",
   "estado": "PENDIENTE",
   ...
+
+### Simular Ollama localmente (modo mock)
+Si el servicio Ollama no está disponible o no hay un modelo cargado, puedes ejecutar un mock local que responda al endpoint `POST /api/generate` en el puerto `11434`.
+
+1) Desde la carpeta `backend/tutorlink-backend` ejecuta:
+
+```bash
+python3 mock_ollama.py
+```
+
+Esto levantará un servidor que responde con un JSON simulado: `{"response":"Respuesta simulada por el mock de Ollama para pruebas locales."}`.
+
+2) Arranca el backend apuntando a la URL del mock (si tu backend no fue configurado con la URL por defecto):
+
+```fish
 }
 
+java -jar target/tutorlink-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev --tutorlink.ollama.base-url=http://localhost:11434
+```
+
+3) Ahora llama `POST /preguntas/{id}/generar` con un token válido; el backend recibirá la respuesta simulada y devolverá `200 OK` con `contenido` rellenado.
+
+Notes:
+- Si prefieres desactivar las llamadas a Ollama y que el backend devuelva 503 mientras pruebas, ajusta la propiedad `tutorlink.ollama.enabled=false` en `src/main/resources/application.properties` o exporta `TUTORLINK_OLLAMA_ENABLED=false` antes de arrancar.
 ### Generate LLM answer for a question (authenticated)
 POST /preguntas/{id}/generar
 Authorization: Bearer <JWT>
