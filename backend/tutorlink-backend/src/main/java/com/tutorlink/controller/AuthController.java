@@ -8,7 +8,9 @@ import com.tutorlink.model.dto.RegisterRequest;
 import com.tutorlink.model.dto.UserDTO;
 import com.tutorlink.service.interfaces.AuthServiceInterface;
 import com.tutorlink.service.interfaces.UserServiceInterface;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -64,5 +66,19 @@ public class AuthController {
         } else {
             return ResponseEntity.badRequest().body(new ApiResponse(false, "Rol inválido. Use ESTUDIANTE o TUTOR"));
         }
+    }
+
+    /** Refresca un token válido y devuelve un nuevo token. */
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponse> refreshToken(HttpServletRequest request) {
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (header == null || !header.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().build();
+        }
+        String token = header.substring(7);
+        String nuevo = authService.refrescarToken(token);
+        // intentar extraer usuario para devolver información mínima
+        Usuario u = authService.validarToken(token);
+        return ResponseEntity.ok(new LoginResponse(nuevo, UserDTO.fromEntity(u)));
     }
 }

@@ -6,8 +6,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +17,6 @@ import java.util.Map;
 
 @Service
 public class JwtService {
-    private static final Logger log = LoggerFactory.getLogger(JwtService.class);
 
     @Value("${security.jwt.secret:ZmFrZVNlY3JldEtleUZvclR1dG9ybGluazEyMzQ=}")
     private String secretoBase64;
@@ -53,7 +50,6 @@ public class JwtService {
             extraerClaims(token);
             return true;
         } catch (Exception e) {
-            log.debug("Token inválido o fallo al parsear token: {}", e.toString());
             return false;
         }
     }
